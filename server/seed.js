@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-dotenv.config({ path: new URL("./.env", import.meta.url).pathname });
+dotenv.config();
 
 const schema = new mongoose.Schema({
   sku: { type: String, required: true, unique: true, trim: true },
