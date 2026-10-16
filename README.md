@@ -1,47 +1,69 @@
 # My Specs Store
 
-A responsive React + Vite eyewear storefront starter.
+Responsive React + Vite eyewear storefront with an Express + MongoDB API foundation.
 
-## Included
-- Responsive storefront with hero, categories, product grid and brand story
-- Search, category filters and price sorting
-- Wishlist toggle
-- Lens option selector (presentation only; upgrades are not added to price yet)
-- Cart with quantity controls and subtotal
-- Checkout form validation and demo order confirmation
-- Cash on delivery demo option
-- Online-payment placeholder clearly marked as not enabled
-- Demo badge to avoid confusing this starter with a live shop
+## Frontend development
 
-## Run locally
-Requires Node.js 18+.
+Requires Node.js 20+.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite.
+## Backend API
 
-## Production status — read before launch
-This is a **frontend demo**, not a live commerce system.
-- Products are hardcoded in `src/main.jsx`.
-- Cart, wishlist and demo orders live only in React memory and disappear on refresh.
-- Checkout does not send orders to a server.
-- No customer information is stored or transmitted by this starter.
-- Razorpay/UPI/card payments are not connected. Do not collect card details in a custom form.
-- Inventory, shipping rates, tax invoices, email/SMS notifications, order tracking, returns and admin management are not implemented.
-- Product photos are loaded from Unsplash URLs and require an internet connection; replace with licensed photos of actual inventory before selling.
+The API lives in `server/` and supports:
+- `GET /api/health` — service and database status
+- `GET /api/products` — active catalogue, with optional `type` and `q` query parameters
+- `POST /api/orders` — validated Cash on Delivery order creation using database product prices and lens upgrades
 
-## Before accepting real orders
-1. Add an API (e.g. Node.js + Express) and persistent database (e.g. MongoDB).
-2. Add admin authentication and server-side product/stock/order management.
-3. Create orders server-side with validated prices, shipping, tax and lens upgrades.
-4. Integrate Razorpay Checkout on the server with order creation and signature verification. Never trust a browser-only payment success event.
-5. Add privacy policy, terms, shipping/returns policy, customer support and business details.
-6. Configure production environment variables, HTTPS, backups, logging and test payment flows in sandbox mode.
+The server recalculates prices from MongoDB rather than trusting totals sent by the browser. It validates customer data, product IDs, quantities and lens choices, applies a ₹99 shipping fee below ₹1,499, and stores the order in MongoDB. The initial API deliberately accepts **COD only**; online payments require a verified payment-provider integration and are not simulated as successful.
 
-## Suggested deployment
-- Frontend: Vercel (Vite preset)
-- API: Render or another Node host
-- Database: MongoDB Atlas
+### Run the API locally (Windows PowerShell or terminal)
+
+```bash
+cd server
+npm install
+Copy-Item .env.example .env
+```
+
+Edit `server/.env` and set `MONGODB_URI`. For local MongoDB, the example URI is:
+
+```text
+mongodb://127.0.0.1:27017/my_specs_store
+```
+
+Then run:
+
+```bash
+npm run dev
+```
+
+In another terminal, seed the sample catalogue:
+
+```bash
+cd server
+npm run seed
+```
+
+Check `http://localhost:5000/api/health`. A connected database should report `"database":"connected"`.
+
+### Environment variables
+
+- `PORT`: API port (defaults to 5000).
+- `MONGODB_URI`: required database connection string. Keep it secret; never commit `.env`.
+- `CLIENT_ORIGIN`: comma-separated exact frontend origins allowed by CORS, e.g. `http://localhost:5173,https://my-specs-store.vercel.app`. Avoid wildcard origins in production.
+
+### Deploy
+
+- Frontend: Vercel project root remains the repository root.
+- API: deploy the `server/` directory to Render or another Node.js host, with start command `npm start`.
+- Database: use MongoDB Atlas for a hosted database; set its network access rules and a strong database user password.
+- Set `MONGODB_URI` and `CLIENT_ORIGIN` in the API host's environment settings. Never put database credentials in Vercel's `VITE_*` variables.
+
+## Important status
+
+The API is committed, but it is **not automatically deployed or connected to the live storefront yet**. Set `VITE_API_URL` in the Vercel frontend environment after deploying the API, and connect the storefront to the API before accepting customer orders. Until that integration and a real database are configured, the storefront's existing checkout remains a demo. No live online payment integration or admin dashboard is included in this step.
+
+Before public sales, also add admin authentication, stock reservation/decrementing with concurrency protection, privacy/terms/returns pages, operational monitoring and verified payment processing. Sample catalogue photos are illustrative and must be replaced with licensed photos of actual inventory.
