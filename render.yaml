@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: my-specs-store-api
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_ORIGIN
+        value: https://my-specs-store.vercel.app
+      - key: MONGODB_URI
+        sync: false
