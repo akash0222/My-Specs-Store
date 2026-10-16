@@ -96,7 +96,7 @@ app.get("/api/products", async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
-const validEmail = (value) => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(value);
+const validEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
 const validPhone = (value) => /^[6-9][0-9]{9}$/.test(value);
 const validPin = (value) => /^[0-9]{6}$/.test(value);
 const lensPrices = { "Frame only": 0, "Blue-light lens": 499, "Prescription lens": 999 };
